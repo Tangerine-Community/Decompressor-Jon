@@ -45,7 +45,12 @@ app.get('/', function(req, res){ res.status(HttpStatus.OK).send(`<body><canvas i
 // accept a post to _all_docs
 app.post('/check/:group', bodyParser.json(), function(req, res) {
     const group = req.params.group;
-    const keys = req.body.keys;
+    var keys;
+    if (req.params.keys != 'undefined')
+        keys = req.params.keys
+    else
+        keys = req.body.keys;
+
     const url = `http://${Settings.T_ADMIN}:${Settings.T_PASS}@${Settings.T_COUCH_HOST}:${Settings.T_COUCH_PORT}/group-${group}/_all_docs`
 
     unirest.post(url).headers(JSON_OPTS)

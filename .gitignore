@@ -1,2 +1,10 @@
 
 .idea
+
+.idea/workspace.xml
+node_modules
+logs
+pids
+
+
+.idea/workspace.xml

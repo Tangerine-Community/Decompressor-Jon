@@ -1,35 +1,54 @@
 {
-  "apps" : [
+  /**
+   * Application configuration section
+   * http://pm2.keymetrics.io/docs/usage/application-declaration/
+   */
+  apps : [
 
+    // First application
     {
-      "name"      : "decompressor",
-      "cwd"        : "./decompressor/",
-      "script"    : "decompressor/index.js",
-      "error_file" : "../logs/decompressor-error.log",
-      "out_file"   : "../logs/decompressor.log",
-      "pid_file"   : "../pids/decompressor.pid"
+      name: "decompressor",
+      script: "index.js",
+      "error_file" : "logs/decompressor-error.log",
+      "out_file"   : "logs/decompressor.log",
+      "pid_file"   : "pids/decompressor.pid",
+      env: {
+        "T_COUCH_HOST": "localhost",
+        "T_COUCH_PORT": 5984,
+        "T_ADMIN": "admin",
+        "T_PASS": "password",
+        "T_ROBBERT_PORT": 4444,
+        "T_TREE_PORT": 4445,
+        "T_BROCKMAN_PORT": 4446,
+        "T_CORS_BULK_DOCS_PORT": 4447,
+        "T_PACKAGER_PORT": 4448,
+        "NODE_ENV": "production"
+      }
     }
   ],
-  "deploy" : {
-    "production" : {
-      "user" : "node",
-      "host" : ["localhost"],
-      "ref"  : "origin/master",
-      "repo" : "git@github.com:Tangerine-Community/Decompressor-Jon.git",
-      "path" : "/www",
-      "post-deploy" : "npm install && pm2 startOrRestart ecosystem.json",
-      "env" : {
-        // Please change .tangerine to match
-        "T_COUCH_HOST" : "localhost",
-        "T_COUCH_PORT" : 5984,
-        "T_ADMIN" : "admin",
-        "T_PASS" : "password",
-        "T_ROBBERT_PORT" : 4444,
-        "T_TREE_PORT" : 4445,
-        "T_BROCKMAN_PORT" : 4446,
-        "T_CORS_BULK_DOCS_PORT" : 4447,
-        "T_PACKAGER_PORT" : 4448,
-        "NODE_ENV" : "production"
+
+  /**
+   * Deployment section
+   * http://pm2.keymetrics.io/docs/usage/deployment/
+   */
+  deploy : {
+    production : {
+      user : "node",
+      host : "localhost",
+      ref  : "origin/master",
+      repo : "git@github.com:Tangerine-Community/Decompressor-Jon.git",
+      path : "/var/www",
+      "post-deploy" : "npm install && pm2 startOrRestart ecosystem.json --env production"
+    },
+    dev : {
+      user : "node",
+      host : "localhost",
+      ref  : "origin/master",
+      repo : "git@github.com:Tangerine-Community/Decompressor-Jon.git",
+      path : "/var/www",
+      "post-deploy" : "npm install && pm2 startOrRestart ecosystem.json --env dev",
+      env  : {
+        NODE_ENV: "dev"
       }
     }
   }
