@@ -16,6 +16,8 @@ Easier to install pm2 globally so it's in the path.
 
 See ecosystem.json to configure ports and paths.
 
+Run npm install to install the node_module dependencies
+
 ## Starting the app
 
 ````
