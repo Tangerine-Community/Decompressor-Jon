@@ -51,7 +51,7 @@ app.post('/check/:group', bodyParser.json(), function(req, res) {
     else
         keys = req.body.keys;
 
-    const url = `http://${Settings.T_ADMIN}:${Settings.T_PASS}@${Settings.T_COUCH_HOST}:${Settings.T_COUCH_PORT}/group-${group}/_all_docs`
+    const url = `http://${Settings.T_ADMIN}:${Settings.T_PASS}@${Settings.T_COUCH_HOST}:${Settings.T_COUCH_PORT}/${group}/_all_docs`
 
     unirest.post(url).headers(JSON_OPTS)
       .json({
@@ -76,7 +76,7 @@ app.post('/upload/:group',
             const formData = data.substring(0, data.length - 2)
             const decompressed = LZString.decompressFromBase64(formData);
             const json = JSON.parse(decompressed);
-            const url = `http://${Settings.T_ADMIN}:${Settings.T_PASS}@${Settings.T_COUCH_HOST}:${Settings.T_COUCH_PORT}/group-${group}/_bulk_docs`
+            const url = `http://${Settings.T_ADMIN}:${Settings.T_PASS}@${Settings.T_COUCH_HOST}:${Settings.T_COUCH_PORT}/${group}/_bulk_docs`
             unirest.post(url).headers(JSON_OPTS)
                 .type('json')
                 .send(json)
