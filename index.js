@@ -46,10 +46,13 @@ app.get('/', function(req, res){ res.status(HttpStatus.OK).send(`<body><canvas i
 app.post('/check/:group', bodyParser.json(), function(req, res) {
     const group = req.params.group;
     var keys;
-    if (req.params.keys != 'undefined')
+    if (typeof (req.params.keys) != 'undefined') {
+        console.log("using params.keys");
         keys = req.params.keys
-    else
+    } else {
+        console.log("using req.body.keys")
         keys = req.body.keys;
+    }
 
     const url = `http://${Settings.T_ADMIN}:${Settings.T_PASS}@${Settings.T_COUCH_HOST}:${Settings.T_COUCH_PORT}/${group}/_all_docs`
 
