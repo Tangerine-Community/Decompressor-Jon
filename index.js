@@ -34,51 +34,57 @@ app.use(cookieParser());
 
 // standard json opts for unirest
 const JSON_OPTS = {
-  'Content-Type' : 'application/json',
-  'Accept'       : 'application/json'
+    'Content-Type' : 'application/json',
+    'Accept'       : 'application/json'
 };
 
 
 // pixel art proof of life
-app.get('/', function(req, res){ res.status(HttpStatus.OK).send(`<body><canvas id='big-img' width='200' height='200' style='width:200px;height:200px;margin:auto;top:0;left:0;right:0;bottom:0;position:absolute;'></canvas></body><script>var img;(img = new Image()).src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAZElEQVQYV2NkQAJz5sz5D+OmpKQwwthgBkwSWQJZjBHEQZZENhlmAFgRNiuQxcGKLL3iwOqOb1sENyguIgHMXrRiAQOKIphCmALSFCH7DmQtyEqQSSBrQADkKXhYICuGScIcCADEOEIp/83TCgAAAABJRU5ErkJggg==';var big = document.getElementById('big-img').getContext('2d');big.imageSmoothingEnabled = false;big.drawImage(img,0,0,10,10,0,0,200,200);</script>`); });
+app.get('/', function(req, res){ res.status(HttpStatus.OK).send(`<body><canvas id='big-img' width='200' height='200' style='width:200px;height:200px;margin:auto;top
+:0;left:0;right:0;bottom:0;position:absolute;'></canvas></body><script>var img;(img = new Image()).src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAA
+DgkQYQAAAAZElEQVQYV2NkQAJz5sz5D+OmpKQwwthgBkwSWQJZjBHEQZZENhlmAFgRNiuQxcGKLL3iwOqOb1sENyguIgHMXrRiAQOKIphCmALSFCH7DmQtyEqQSSBrQADkKXhYICuGScIcCADEOEIp/83TCgAAAABJRU
+5ErkJggg==';var big = document.getElementById('big-img').getContext('2d');big.imageSmoothingEnabled = false;big.drawImage(img,0,0,10,10,0,0,200,200);</script>`); })
+;
 
 // accept a post to _all_docs
 app.post('/check/:group', bodyParser.json(), function(req, res) {
-    const group = req.params.group;
-    var keys;
-    if (typeof (req.params.keys) != 'undefined') {
-        console.log("using params.keys");
-        keys = req.params.keys
-    } else {
-        console.log("using req.body.keys")
-        keys = req.body.keys;
+        const group = req.params.group;
+        var keys;
+        if (typeof (req.params.keys) != 'undefined') {
+            console.log("using params.keys");
+            keys = req.params.keys
+        } else {
+            console.log("using req.body.keys")
+            keys = req.body.keys;
+        }
+        const url = `http://${Settings.T_ADMIN}:${Settings.T_PASS}@${Settings.T_COUCH_HOST}:${Settings.T_COUCH_PORT}/${group}/_all_docs`
+        console.log(new Date().toJSON() + " | Checking group:" + group);
+        unirest.post(url).headers(JSON_OPTS)
+            .json({
+                keys : keys
+            })
+            .end(function(response){
+                res.status(response.status)
+                    .json(response.body);
+            });
     }
-
-    const url = `http://${Settings.T_ADMIN}:${Settings.T_PASS}@${Settings.T_COUCH_HOST}:${Settings.T_COUCH_PORT}/${group}/_all_docs`
-
-    unirest.post(url).headers(JSON_OPTS)
-      .json({
-        keys : keys
-      })
-      .end(function(response){
-        res.status(response.status)
-          .json(response.body);
-      });
-  }
 );
 
 // accept a call to _bulk_docs
 app.post('/upload/:group',
     function(req, res) {
+        const group = req.params.group;
+        console.log(new Date().toJSON() + " | content-length for group " + group + " | " + req.headers['content-length']);
         var data = '';
         req.on('data', function(chunk) {
             data += chunk;
         });
         req.on('end', function() {
-            const group = req.params.group;
+            console.log("Size of data uploaded for group " + group + " | " + data.length);
             const formData = data.substring(0, data.length - 2)
             const decompressed = LZString.decompressFromBase64(formData);
             const json = JSON.parse(decompressed);
+            console.log(new Date().toJSON() + " | Uploading data for group:" + group + "|" + JSON.stringify(json));
             const url = `http://${Settings.T_ADMIN}:${Settings.T_PASS}@${Settings.T_COUCH_HOST}:${Settings.T_COUCH_PORT}/${group}/_bulk_docs`
             unirest.post(url).headers(JSON_OPTS)
                 .type('json')
@@ -93,7 +99,7 @@ app.post('/upload/:group',
 
 // kick it off
 const server = app.listen(Settings.T_DECOMPRESSOR_PORT, function () {
-  const host = server.address().address;
-  const port = server.address().port;
-  console.log('Decompressor: http://%s:%s', host, port);
+    const host = server.address().address;
+    const port = server.address().port;
+    console.log('Decompressor: http://%s:%s', host, port);
 });
